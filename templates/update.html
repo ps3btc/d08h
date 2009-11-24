@@ -1,0 +1,11 @@
+{% extends "base.html" %}
+{% block content %}
+<br><br><br><br><br><br>
+<form action="/update" enctype="multipart/form-data" method="post">
+  <div><label>what do you want To tweet? <i>(your tweet will be the URL of your uploaded image :)</i></label></div>
+  <div><input type="text" name="content" size="120"/</div>
+  <div><label>image:</label></div>
+  <div><input class="buttonint" type="file" name="img"/></div>
+  <div><input class="buttonint" type="submit" value="submit"></div>
+</form>
+{% endblock %}

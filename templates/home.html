@@ -1,0 +1,10 @@
+{% extends "base.html" %}
+
+{% block content %}
+{% for image in image_list %}
+<img src='/img?img_id={{ image.key }}'</img>
+<p>
+	uploaded by {{ image.author.nickname }} to <a href="/{{ image.content }}">{{ image.content }}</a> on {{ image.date.isoformat }}
+</p>
+{% endfor %}
+{% endblock %}
