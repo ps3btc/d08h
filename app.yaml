@@ -16,18 +16,18 @@ handlers:
   upload: static/favicon.ico
 
 - url: /update
-  script: main.py
+  script: twimgr.py
   login: required
 
 - url: /user
-  script: main.py
+  script: twimgr.py
   login: required
   
 - url: /u
-  script: main.py
+  script: twimgr.py
   login: required
   
 - url: .*
-  script: main.py
+  script: twimgr.py
 
 
