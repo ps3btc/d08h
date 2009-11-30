@@ -1,7 +1,0 @@
-{% extends "base.html" %}
-{% block content %}
-<img src='/img?img_id={{ image.key }}'</img>
-<p>
-  uploaded by {{ image.author.nickname }} to unique url <a href="/{{ image.content }}">{{ image.content }}</a> on {{ image.date.isoformat }}
-</p>
-{% endblock %}
