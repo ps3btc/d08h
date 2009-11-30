@@ -1,18 +1,32 @@
 {% extends "base.html" %}
-
 {% block content %}
 <p>
-  folks on twitter are obsessed with tiny urls and rightly so. you only have 140 characters to work with.
-  when folks tweet image uploads they have their status update followed by the link to the url.
-  i wondered if i could merge the two together. and i did.
+  people on twitter are obsessed with tiny urls since they only have 140 characters to work with.
 </p>
+
 <p>
-  so instead of saying <a href="http://twitter.com/MeRRyuMMy/status/6014406834">this</a>, you can just
-  say <a href="http://twitter.com/ps3btc/status/6015150399">this</a>. as you can see the status update
-  is embedded inside the image URL. we know how badly you wanted this :)
+  when people tweet image uploads, they upload their image using any of these fine services
+  <a href="http://twitgoo.com">twitgoo</a>, <a href="http://yfrog.com">yfrog</a> or
+  <a href="http://twitpic.com">twitpic</a> and get a tiny link.
+  they then, proceed to tweet the image link, prefacing the link with their status update.
 </p>
+
 <p>
-  for now you can sign in with your google account. automatic update to twitter isn't there yet. maybe
-  i should remove the cute powered by twitter icon below.
+  so we wondered if we could be <b>super terse</b> and merge the status update inside the
+  link that the image gets uploaded to and so i built <a href="/">twimgr.com</a>.
+</p>
+
+<p>
+  <img src="http://www.twimgr.com/img?img_id=agRkMDhochILEgtJbWFnZU9iamVjdBihHww" alt="twimgr.com in a nutshell"/>
+</p>
+
+<p>
+  we at <a href="/">twimgr.com</a> like to dogfood, so the unique link to the image above is at <b><a href="http://twimgr.com/TwimgrInANutshell">http://twimgr.com/TwimgrInANutshell</a></b>.
+</p>
+
+<p>
+  if pictures aren't your thing, <a href="/">twimgr.com</a> does this:
+  instead of saying <a href="http://twitter.com/MeRRyuMMy/status/6014406834">this</a>, you can just
+  say <a href="http://twitter.com/ps3btc/status/6015150399">this</a>.
 </p>
 {% endblock %}

@@ -138,12 +138,14 @@ class Update(webapp.RequestHandler):
     content = self.request.get("content")
     xi.content = validate_content(content)
     try:
-      payload = images.resize(raw_img, 640, 480)
-      xi.payload = db.Blob(payload)
+      xi.payload = db.Blob(raw_img)
       xi.put()
-    finally:
-      self.redirect('/user')
-      return
+    except:
+      payload = images.resize(raw_img, 640, 480)
+      xi.payload = db.Blob(raw_img)
+      xi.put()
+      
+    self.redirect('/user')
 
 def main():
   application = webapp.WSGIApplication([
