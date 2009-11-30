@@ -8,6 +8,7 @@ import datetime
 import logging
 import random
 import wsgiref.handlers
+import urllib
 from google.appengine.ext import db
 from google.appengine.api import users
 from google.appengine.ext import webapp
@@ -16,18 +17,33 @@ from google.appengine.ext.webapp import template
 from google.appengine.ext.webapp.util import run_wsgi_app
 
 def get_images(images):
-  image_list = images 
+  image_list = images
   for image in image_list:
     image.content = cgi.escape(image.content)
   return image_list
 
 def get_random_content():
-  # TODO(hareesh): What if the same URI exists? Check+reject etc.
-  return 'i like number %s' % str(hex(int(random.uniform(1, 1000000))))
+  uri = 'i like number %s' % str(hex(int(random.uniform(1, 1000000))))
+  return generate_unique_uri(uri)
+
+def content_exist(uri):
+  image_list = get_images(db.GqlQuery(
+    "SELECT * FROM ImageObject WHERE content = :content",
+    content=uri))
+  for image in image_list:
+    return True
+  return False
+
+def generate_unique_uri(uri):
+  test_uri = uri[:120]
+  while content_exist(test_uri):
+    test_uri = uri + str(hex(int(random.uniform(1, 10000))))
+    logging.error('Uri already exists. Regenerating %s (%s)', test_uri, uri)
+  return test_uri
   
 def validate_content(content):
   if len(content) == 0:
-      content = get_random_content()
+    content = get_random_content()
   else:
     content = content[:120]
     new_content = []
@@ -42,8 +58,9 @@ def validate_content(content):
   for word in content.split():
     ll.append(word.capitalize())
   
-  return ''.join(ll)
-  
+  unique_uri = ''.join(ll)
+  return generate_unique_uri(unique_uri)
+    
 class ImageObject(db.Model):
   author = db.UserProperty()
   content = db.StringProperty(multiline=True)
@@ -59,10 +76,10 @@ class About(webapp.RequestHandler):
 class MainPage(webapp.RequestHandler):
   def get(self):
     req_author = users.get_current_user()
-    if req_author is None:
-      req_author = 'not signed in'
-    image_list = get_images(db.GqlQuery("SELECT * FROM ImageObject ORDER BY date DESC LIMIT 10"))
+    image_list = get_images(db.GqlQuery("SELECT * FROM ImageObject ORDER BY date DESC LIMIT 20"))
     path = os.path.join(os.path.dirname(__file__), 'templates/home.html')
+    if req_author is None:
+      req_author = '' 
     template_values = {
       'image_list': image_list,
       'username': req_author,
@@ -72,22 +89,36 @@ class MainPage(webapp.RequestHandler):
 class UpdatePage(webapp.RequestHandler):
   def get(self):
     req_author = users.get_current_user()
-    if req_author is None:
-      req_author = 'not signed in'
     path = os.path.join(os.path.dirname(__file__), 'templates/update.html')
+    if req_author is None:
+      req_author = ''
+
     template_values = {
       'username' : req_author,
     }
     self.response.out.write(template.render(path, template_values))
 
 class ShowUser(webapp.RequestHandler):
-  def get(self):
+  def get(self, this_user=None):
     req_author = users.get_current_user()
+    logging.info('this_user:%s current_user:%s', this_user, req_author)
+    if (req_author is None or req_author == '') and (this_user == '' or this_user == None):
+      self.redirect('/user')
+      return
     if req_author is None:
-      req_author = 'not signed in'    
+      req_author = ''
+    search_user = req_author
+    if this_user:
+      search_user = users.User(urllib.unquote_plus(this_user))
     image_list = get_images(db.GqlQuery(
-      "SELECT * FROM ImageObject WHERE author = :author ORDER BY date DESC",
-      author=req_author))
+      "SELECT * FROM ImageObject WHERE author = :author ORDER BY date DESC LIMIT 30",
+      author=search_user))
+    results = 0
+    for img in image_list:
+      results+=1
+    if results == 0:
+      self.redirect('/')
+      return
     path = os.path.join(os.path.dirname(__file__), 'templates/home.html')
     template_values = {
       'image_list': image_list,
@@ -102,10 +133,8 @@ class ShowLink(webapp.RequestHandler):
       req_author = 'not signed in'    
     if not link:
       self.redirect('/')
-    # TODO(hareesh): Add a check to make sure there is only 1 result
-    # TODO(hareesh): Degrade gracefully if there are no results
     image_list = get_images(db.GqlQuery(
-      "SELECT * FROM ImageObject WHERE content = :content ORDER BY date DESC",
+      "SELECT * FROM ImageObject WHERE content = :content ORDER BY date DESC LIMIT 1",
       content=link))
     path = os.path.join(os.path.dirname(__file__), 'templates/home.html')
     template_values = {
@@ -153,6 +182,7 @@ def main():
       ('/u', UpdatePage),
       ('/img', Image),
       ('/update', Update),
+      (r'/user/(.*)', ShowUser),
       ('/user', ShowUser),
       ('/about', About),
       (r'/(.*)', ShowLink)
