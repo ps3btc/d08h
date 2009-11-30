@@ -50,35 +50,56 @@ class ImageObject(db.Model):
   payload = db.BlobProperty()
   date = db.DateTimeProperty(auto_now_add=True)
 
+class About(webapp.RequestHandler):
+  def get(self):
+    path = os.path.join(os.path.dirname(__file__), 'templates/about.html')
+    template_values = { 'username' : users.get_current_user() }
+    self.response.out.write(template.render(path, template_values))
+
 class MainPage(webapp.RequestHandler):
   def get(self):
+    req_author = users.get_current_user()
+    if req_author is None:
+      req_author = 'not signed in'
     image_list = get_images(db.GqlQuery("SELECT * FROM ImageObject ORDER BY date DESC LIMIT 10"))
     path = os.path.join(os.path.dirname(__file__), 'templates/home.html')
     template_values = {
       'image_list': image_list,
+      'username': req_author,
     }
     self.response.out.write(template.render(path, template_values))
     
 class UpdatePage(webapp.RequestHandler):
   def get(self):
+    req_author = users.get_current_user()
+    if req_author is None:
+      req_author = 'not signed in'
     path = os.path.join(os.path.dirname(__file__), 'templates/update.html')
-    template_values = {}
+    template_values = {
+      'username' : req_author,
+    }
     self.response.out.write(template.render(path, template_values))
 
 class ShowUser(webapp.RequestHandler):
   def get(self):
     req_author = users.get_current_user()
+    if req_author is None:
+      req_author = 'not signed in'    
     image_list = get_images(db.GqlQuery(
       "SELECT * FROM ImageObject WHERE author = :author ORDER BY date DESC",
       author=req_author))
     path = os.path.join(os.path.dirname(__file__), 'templates/home.html')
     template_values = {
       'image_list': image_list,
+      'username' : req_author,
     }
     self.response.out.write(template.render(path, template_values))
 
 class ShowLink(webapp.RequestHandler):
   def get(self, link):
+    req_author = users.get_current_user()
+    if req_author is None:
+      req_author = 'not signed in'    
     if not link:
       self.redirect('/')
     # TODO(hareesh): Add a check to make sure there is only 1 result
@@ -89,6 +110,7 @@ class ShowLink(webapp.RequestHandler):
     path = os.path.join(os.path.dirname(__file__), 'templates/home.html')
     template_values = {
       'image_list': image_list,
+      'username': req_author,
     }
     self.response.out.write(template.render(path, template_values))
 
@@ -120,7 +142,7 @@ class Update(webapp.RequestHandler):
       xi.payload = db.Blob(payload)
       xi.put()
     finally:
-      self.redirect('/')
+      self.redirect('/user')
       return
 
 def main():
@@ -130,6 +152,7 @@ def main():
       ('/img', Image),
       ('/update', Update),
       ('/user', ShowUser),
+      ('/about', About),
       (r'/(.*)', ShowLink)
       ], debug=True)
   run_wsgi_app(application)

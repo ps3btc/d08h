@@ -1,10 +1,11 @@
 {% extends "base.html" %}
 {% block content %}
-<br><br><br><br><br><br>
 <form action="/update" enctype="multipart/form-data" method="post">
-  <div><label>what do you want To tweet? <i>(your tweet will be the URL of your uploaded image :)</i></label></div>
+  <div><h1>what do you want to tweet?</h1><i><p>your tweet becomes the image url!</p></i></div>
   <div><input type="text" name="content" size="120"/</div>
-  <div><label>image:</label></div>
+  <p><p>
+  <div><h1>upload your image</h1></div>
+  <br><br>
   <div><input class="buttonint" type="file" name="img"/></div>
   <div><input class="buttonint" type="submit" value="submit"></div>
 </form>

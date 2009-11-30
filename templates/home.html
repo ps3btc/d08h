@@ -1,10 +1,13 @@
 {% extends "base.html" %}
 
+#on {{ image.date.isoformat }}
+
 {% block content %}
 {% for image in image_list %}
 <img src='/img?img_id={{ image.key }}'</img>
 <p>
-	uploaded by {{ image.author.nickname }} to <a href="/{{ image.content }}">{{ image.content }}</a> on {{ image.date.isoformat }}
+	uploaded by {{ image.author.nickname }} to <b><a href="/{{ image.content }}">{{ image.content }}</a></b>&nbsp;
+  <a href=http://twitter.com/home?status=http://twimgr.com/{{ image.content }}><img src="http://twitter-badges.s3.amazonaws.com/t_mini-b.png" alt="tweet this" style="border-style: none"/></a>
 </p>
 {% endfor %}
 {% endblock %}

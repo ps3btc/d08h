@@ -1,28 +1,42 @@
 <html lang="en">
-	<head>
+  <head>
 		<link href="/stylesheets/main.css" rel="stylesheet" type="text/css"/>
-		</head>
-		<body>
-				<div class="top_black">
-						<div class="toptext">
-								<h2>twimgr.com embed your tweet inside the URL of the image that you upload</h2>
-						</div>
+	</head>
+  <title>twimgr.com embed your tweet inside the URL of the image that you upload</title>
+	<body>
+		<div class="top_black">
+				<div class="toptext">
+					<h2>embed your tweet inside the URL of the image that you upload</h2>
 						<center>
-								<a href="/">home</a>&nbsp;&nbsp;&nbsp;<a href="/u">upload image</a>&nbsp;&nbsp;&nbsp;<a href="/user">my links</a>
+								<a href="/">home</a>&nbsp;&nbsp;&nbsp;<a href="/about">what is twimgr.com?</a>&nbsp;&nbsp;&nbsp;<a href="/u">upload image</a>&nbsp;&nbsp;&nbsp;<a href="/user">my links <i>({{ username }})</i></a>
 						</center>
 				</div>
-        <div class="mainsub">
-          <center>
-            {% block content %}{% endblock %}
-          </center>
-        </div>
-				<div class="footer">
+			</div>
+			<div class="mainsub">
+				<p>
+						<center><p><a name="fb_share" type="button_count"href=" http://www.facebook.com/sharer.php">Share on facebook</a><script src="http://static.ak.fbcdn.net/connect.php/js/FB.Share" type="text/javascript"></script></p></center>
+				
+					<center>
+						{% block content %}{% endblock %}
+					</center>
+				</div>
+				<div id="footer">
 						<center>
-								ps3btc &copy; <a href="http://linkybinky.appspot.com">linkybinky</a> 2009.
+								&copy; <a href="http://twitter.com/hnag">Hareesh Nagarajan</a> 2009&nbsp;
 								<a href="http://www.twitter.com" target="_blank">
 										<img src="/stylesheets/powered-by-twitter-sig.gif">
 								</a>
 						</center>
 				</div>
+				<script type="text/javascript">
+					var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+					document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+				</script>
+				<script type="text/javascript">
+					try {
+					var pageTracker = _gat._getTracker("UA-11757773-1");
+					pageTracker._trackPageview();
+					} catch(err) {}
+				</script>
 		</body>
 </html>
