@@ -84,35 +84,42 @@ class ImageObject(db.Model):
   payload = db.BlobProperty()
   date = db.DateTimeProperty(auto_now_add=True)
 
+def get_user():
+  req_author = users.get_current_user()
+  if req_author:
+    return req_author.email()
+  else:
+    return ''
+  
 class Problem(webapp.RequestHandler):
   def get(self, problem):
     path = os.path.join(os.path.dirname(__file__), 'templates/problem.html')
     template_values = {
-      'username' : users.get_current_user(),
+      'username' : get_user(),
       'problem' : problem,
       'header' : get_header(),
     }
     self.response.out.write(template.render(path, template_values))
 
+
 class About(webapp.RequestHandler):
   def get(self):
+    req_author = users.get_current_user()
+    
     path = os.path.join(os.path.dirname(__file__), 'templates/about.html')
     template_values = {
-      'username' : users.get_current_user(),
+      'username' : get_user(),
       'header' : get_header(),
     }
     self.response.out.write(template.render(path, template_values))
 
 class MainPage(webapp.RequestHandler):
   def get(self):
-    req_author = users.get_current_user()
     image_list = get_images(db.GqlQuery("SELECT * FROM ImageObject ORDER BY date DESC LIMIT 20"))
     path = os.path.join(os.path.dirname(__file__), 'templates/home.html')
-    if req_author is None:
-      req_author = '' 
     template_values = {
       'image_list': image_list,
-      'username': req_author,
+      'username': get_user(),
       'header' : get_header(),
       'show_trash' : False,
     }
@@ -120,25 +127,19 @@ class MainPage(webapp.RequestHandler):
     
 class UpdatePage(webapp.RequestHandler):
   def get(self):
-    req_author = users.get_current_user()
     path = os.path.join(os.path.dirname(__file__), 'templates/update.html')
-    if req_author is None:
-      req_author = ''
-
     template_values = {
-      'username' : req_author,
+      'username' : get_user(),
       'header' : get_header()
     }
     self.response.out.write(template.render(path, template_values))
 
 class ShowUser(webapp.RequestHandler):
   def get(self, this_user=None):
-    req_author = users.get_current_user()
-    if (req_author is None or req_author == '') and (this_user == '' or this_user == None):
+    req_author = get_user()
+    if (req_author == '') and (this_user == '' or this_user == None):
       self.redirect('/user')
       return
-    if req_author is None:
-      req_author = ''
     search_user = req_author
     if this_user:
       search_user = users.User(urllib.unquote_plus(this_user))
@@ -156,19 +157,19 @@ class ShowUser(webapp.RequestHandler):
 
 class Delete(webapp.RequestHandler):
   def get(self, delete_link):
-    req_author = users.get_current_user()
-    if req_author is None:
+    req_author = get_user()
+    if req_author == '':
       self.redirect('/problem/ERR_NOT_SIGNED_IN')
       return
     if not delete_content(req_author, delete_link):
       self.redirect('/problem/ERR_LINK_CANNOT_DELETE')
       return
-    self.redirect('/user/' + req_author.nickname())
+    self.redirect('/user')
 
 class ShowLink(webapp.RequestHandler):
   def get(self, link):
-    req_author = users.get_current_user()
-    if req_author is None:
+    req_author = get_user()
+    if req_author == '':
       req_author = 'not signed in'
     if not content_exist(link):
       self.redirect('/problem/ERR_LINK_NOT_EXIST')
