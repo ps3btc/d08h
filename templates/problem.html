@@ -12,11 +12,19 @@
 			{% endifequal %}
 			
 			{% ifequal problem "ERR_USER_NO_RESULTS" %}
-			You haven't uploaded a single picture. But you have nothing to worry. <a href="/u">Go on, upload!</a>.
+			You haven't uploaded a single image. But you have nothing to worry. <a href="/u">Go on, upload!</a>.
 			{% endifequal %}
 
 			{% ifequal problem "ERR_LINK_NOT_EXIST" %}
 			The link you refer to doesn't exist. *cwap*
+			{% endifequal %}
+			
+			{% ifequal problem "ERR_NOT_SIGNED_IN" %}
+			You need to be signed in to delete images. *sowwie*
+			{% endifequal %}
+			
+			{% ifequal problem "ERR_LINK_CANNOT_DELETE" %}
+			You either don't own this image or this image doesn't exist! *w00t*
 			{% endifequal %}
 		</b>
 </p>

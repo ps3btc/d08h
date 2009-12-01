@@ -39,6 +39,18 @@ def content_exist(uri):
     return True
   return False
 
+def delete_content(req_author, uri):
+  image_list = get_images(db.GqlQuery(
+    "SELECT * FROM ImageObject WHERE content = :content AND author = :author",
+    content=uri,
+    author=req_author
+    ))
+  for image in image_list:
+    logging.info('Found the image to delete ...')
+    image.delete()
+    return True
+  return False
+
 def generate_unique_uri(uri):
   test_uri = uri[:120]
   while content_exist(test_uri):
@@ -121,7 +133,6 @@ class UpdatePage(webapp.RequestHandler):
 class ShowUser(webapp.RequestHandler):
   def get(self, this_user=None):
     req_author = users.get_current_user()
-    logging.info('this_user:%s current_user:%s', this_user, req_author)
     if (req_author is None or req_author == '') and (this_user == '' or this_user == None):
       self.redirect('/user')
       return
@@ -146,6 +157,17 @@ class ShowUser(webapp.RequestHandler):
       'header' : get_header()
     }
     self.response.out.write(template.render(path, template_values))
+
+class Delete(webapp.RequestHandler):
+  def get(self, delete_link):
+    req_author = users.get_current_user()
+    if req_author is None:
+      self.redirect('/problem/ERR_NOT_SIGNED_IN')
+      return
+    if not delete_content(req_author, delete_link):
+      self.redirect('/problem/ERR_LINK_CANNOT_DELETE')
+      return
+    self.redirect('/user/' + req_author.nickname())
 
 class ShowLink(webapp.RequestHandler):
   def get(self, link):
@@ -214,6 +236,7 @@ def main():
       (r'/user/(.*)', ShowUser),
       ('/user', ShowUser),
       ('/about', About),
+      (r'/delete/(.*)', Delete),      
       (r'/problem/(.*)', Problem),
       (r'/(.*)', ShowLink)
       ], debug=True)

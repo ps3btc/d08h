@@ -10,6 +10,10 @@ handlers:
 - url: /robots.txt
   static_files: static/robots.txt
   upload: static/robots.txt
+
+- url: /trash.gif
+  static_files: static/trash.gif
+  upload: static/trash.gif
   
 - url: /favicon.ico
   static_files: static/favicon.ico
@@ -24,6 +28,10 @@ handlers:
   login: required
   
 - url: /u
+  script: twimgr.py
+  login: required
+
+- url: /delete
   script: twimgr.py
   login: required
   
