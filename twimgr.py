@@ -72,6 +72,17 @@ class ImageObject(db.Model):
   payload = db.BlobProperty()
   date = db.DateTimeProperty(auto_now_add=True)
 
+class Problem(webapp.RequestHandler):
+  def get(self, problem):
+    logging.info('Problem handler says: %s', problem)
+    path = os.path.join(os.path.dirname(__file__), 'templates/problem.html')
+    template_values = {
+      'username' : users.get_current_user(),
+      'problem' : problem,
+      'header' : get_header(),
+    }
+    self.response.out.write(template.render(path, template_values))
+
 class About(webapp.RequestHandler):
   def get(self):
     path = os.path.join(os.path.dirname(__file__), 'templates/about.html')
@@ -127,7 +138,7 @@ class ShowUser(webapp.RequestHandler):
     for img in image_list:
       results+=1
     if results == 0:
-      self.redirect('/')
+      self.redirect('/problem/ERR_USER_NO_RESULTS')
       return
     path = os.path.join(os.path.dirname(__file__), 'templates/home.html')
     template_values = {
@@ -141,9 +152,10 @@ class ShowLink(webapp.RequestHandler):
   def get(self, link):
     req_author = users.get_current_user()
     if req_author is None:
-      req_author = 'not signed in'    
-    if not link:
-      self.redirect('/')
+      req_author = 'not signed in'
+    if not content_exist(link):
+      self.redirect('/problem/ERR_LINK_NOT_EXIST')
+      return
     image_list = get_images(db.GqlQuery(
       "SELECT * FROM ImageObject WHERE content = :content ORDER BY date DESC LIMIT 1",
       content=link))
@@ -159,7 +171,6 @@ class ShowLink(webapp.RequestHandler):
     }
     self.response.out.write(template.render(path, template_values))
 
-
 class Image(webapp.RequestHandler):
   def get(self):
     image = db.get(self.request.get("img_id"))
@@ -174,12 +185,15 @@ class Update(webapp.RequestHandler):
     raw_img = self.request.get("img")
     if len(raw_img) == 0:
       logging.info('Image payload is empty')
-      self.redirect('/')
+      self.redirect('/problem/ERR_PAYLOAD_EMPTY')
+      return
+    if len(raw_img) > 1000000:
+      logging.error('Image is too large')
+      self.redirect('/problem/ERR_IMG_TOO_LARGE')
       return
     xi = ImageObject()
     if users.get_current_user():
       xi.author = users.get_current_user()
-      
     content = self.request.get("content")
     xi.content = validate_content(content)
     try:
@@ -201,6 +215,7 @@ def main():
       (r'/user/(.*)', ShowUser),
       ('/user', ShowUser),
       ('/about', About),
+      (r'/problem/(.*)', Problem),
       (r'/(.*)', ShowLink)
       ], debug=True)
   run_wsgi_app(application)
