@@ -14,6 +14,10 @@ handlers:
 - url: /trash.gif
   static_files: static/trash.gif
   upload: static/trash.gif
+
+- url: /tweet_this.png
+  static_files: static/tweet_this.png
+  upload: static/tweet_this.png
   
 - url: /favicon.ico
   static_files: static/favicon.ico
