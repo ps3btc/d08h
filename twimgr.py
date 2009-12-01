@@ -24,7 +24,7 @@ def get_images(images):
 
 def get_header(title=None):
   if title:
-    return title
+    return title[:50] + '...'
   return 'embed your tweet inside the URL of the image that you upload'
 
 def get_random_content():
