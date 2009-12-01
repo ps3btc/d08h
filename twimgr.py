@@ -114,6 +114,7 @@ class MainPage(webapp.RequestHandler):
       'image_list': image_list,
       'username': req_author,
       'header' : get_header(),
+      'show_trash' : False,
     }
     self.response.out.write(template.render(path, template_values))
     
@@ -148,7 +149,8 @@ class ShowUser(webapp.RequestHandler):
     template_values = {
       'image_list': image_list,
       'username' : req_author,
-      'header' : get_header()
+      'header' : get_header(),
+      'show_trash' : True,
     }
     self.response.out.write(template.render(path, template_values))
 

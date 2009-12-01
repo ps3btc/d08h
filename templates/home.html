@@ -6,11 +6,9 @@
 <p>
 	uploaded by <a href="/user/{{ image.author.nickname }}">{{ image.author.nickname }}</a> to <b><a href="/{{ image.content }}">{{ image.content }}</a></b>&nbsp;
   <a href=http://twitter.com/home?status=http://twimgr.com/{{ image.content }}><img src="/tweet_this.png" title="tweet this" alt="tweet this" style="border-style: none"/></a>
-
-  {# only show the delete icon if you own the image#}
-	{#% ifequal image.author.nickname username.author.nickname %#}
-	{#% endifequal %#}
+	{% if show_trash %}
 	<a href="/delete/{{ image.content }}"><img src="/trash.gif" alt="delete image" title="delete image" style="border-style: none"/></a>
+	{% endif %}
 </p>
 {% endfor %}
 {% endblock %}
