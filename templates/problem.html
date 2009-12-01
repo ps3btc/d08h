@@ -1,18 +1,18 @@
 {% extends "base.html" %}
 
 {% block content %}
-<p>oh noes, we have a pr0blem.
+<p>
 		<b>
 			{% ifequal problem "ERR_IMG_TOO_LARGE" %}
 			The image was too large. Google Appengine only lets us upload files that are 1 MB in size. *sniff*
 			{% endifequal %}
 
 			{% ifequal problem "ERR_PAYLOAD_EMPTY" %}
-			The size of the image was ZERO!
+			The size of the image was ZERO! There is no way you can upload that!
 			{% endifequal %}
 			
 			{% ifequal problem "ERR_USER_NO_RESULTS" %}
-			You haven't uploaded a single image. But you have nothing to worry. <a href="/u">Go on, upload!</a>.
+			0 images uploaded. <a href="/u">Go on, upload!</a>.
 			{% endifequal %}
 
 			{% ifequal problem "ERR_LINK_NOT_EXIST" %}

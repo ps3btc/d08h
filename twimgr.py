@@ -39,11 +39,11 @@ def content_exist(uri):
     return True
   return False
 
-def delete_content(req_author, uri):
+def delete_content(uri):
   image_list = get_images(db.GqlQuery(
     "SELECT * FROM ImageObject WHERE content = :content AND author = :author",
     content=uri,
-    author=req_author
+    author=users.get_current_user(),
     ))
   for image in image_list:
     logging.info('Found the image to delete ...')
@@ -140,12 +140,18 @@ class ShowUser(webapp.RequestHandler):
     if (req_author == '') and (this_user == '' or this_user == None):
       self.redirect('/user')
       return
-    search_user = req_author
+    search_user = users.get_current_user()
     if this_user:
       search_user = users.User(urllib.unquote_plus(this_user))
     image_list = get_images(db.GqlQuery(
       "SELECT * FROM ImageObject WHERE author = :author ORDER BY date DESC LIMIT 30",
       author=search_user))
+    results = 0
+    for image in image_list:
+      results+=1
+    if results == 0:
+      self.redirect('/problem/ERR_USER_NO_RESULTS')
+      return
     path = os.path.join(os.path.dirname(__file__), 'templates/home.html')
     template_values = {
       'image_list': image_list,
@@ -161,7 +167,7 @@ class Delete(webapp.RequestHandler):
     if req_author == '':
       self.redirect('/problem/ERR_NOT_SIGNED_IN')
       return
-    if not delete_content(req_author, delete_link):
+    if not delete_content(delete_link):
       self.redirect('/problem/ERR_LINK_CANNOT_DELETE')
       return
     self.redirect('/user')
