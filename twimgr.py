@@ -144,12 +144,6 @@ class ShowUser(webapp.RequestHandler):
     image_list = get_images(db.GqlQuery(
       "SELECT * FROM ImageObject WHERE author = :author ORDER BY date DESC LIMIT 30",
       author=search_user))
-    results = 0
-    for img in image_list:
-      results+=1
-    if results == 0:
-      self.redirect('/problem/ERR_USER_NO_RESULTS')
-      return
     path = os.path.join(os.path.dirname(__file__), 'templates/home.html')
     template_values = {
       'image_list': image_list,
