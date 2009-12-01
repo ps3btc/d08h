@@ -22,6 +22,11 @@ def get_images(images):
     image.content = cgi.escape(image.content)
   return image_list
 
+def get_header(title=None):
+  if title:
+    return title
+  return 'embed your tweet inside the URL of the image that you upload'
+
 def get_random_content():
   uri = 'i like number %s' % str(hex(int(random.uniform(1, 1000000))))
   return generate_unique_uri(uri)
@@ -70,7 +75,10 @@ class ImageObject(db.Model):
 class About(webapp.RequestHandler):
   def get(self):
     path = os.path.join(os.path.dirname(__file__), 'templates/about.html')
-    template_values = { 'username' : users.get_current_user() }
+    template_values = {
+      'username' : users.get_current_user(),
+      'header' : get_header(),
+    }
     self.response.out.write(template.render(path, template_values))
 
 class MainPage(webapp.RequestHandler):
@@ -83,6 +91,7 @@ class MainPage(webapp.RequestHandler):
     template_values = {
       'image_list': image_list,
       'username': req_author,
+      'header' : get_header(),
     }
     self.response.out.write(template.render(path, template_values))
     
@@ -95,6 +104,7 @@ class UpdatePage(webapp.RequestHandler):
 
     template_values = {
       'username' : req_author,
+      'header' : get_header()
     }
     self.response.out.write(template.render(path, template_values))
 
@@ -123,6 +133,7 @@ class ShowUser(webapp.RequestHandler):
     template_values = {
       'image_list': image_list,
       'username' : req_author,
+      'header' : get_header()
     }
     self.response.out.write(template.render(path, template_values))
 
@@ -137,9 +148,14 @@ class ShowLink(webapp.RequestHandler):
       "SELECT * FROM ImageObject WHERE content = :content ORDER BY date DESC LIMIT 1",
       content=link))
     path = os.path.join(os.path.dirname(__file__), 'templates/home.html')
+    header = get_header()
+    for image in image_list:
+      header = get_header(link)
+      break
     template_values = {
       'image_list': image_list,
       'username': req_author,
+      'header' : header,
     }
     self.response.out.write(template.render(path, template_values))
 
