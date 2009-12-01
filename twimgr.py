@@ -74,7 +74,6 @@ class ImageObject(db.Model):
 
 class Problem(webapp.RequestHandler):
   def get(self, problem):
-    logging.info('Problem handler says: %s', problem)
     path = os.path.join(os.path.dirname(__file__), 'templates/problem.html')
     template_values = {
       'username' : users.get_current_user(),
