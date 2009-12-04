@@ -9,6 +9,7 @@ import logging
 import random
 import wsgiref.handlers
 import urllib
+import time
 from google.appengine.ext import db
 from google.appengine.api import users
 from google.appengine.ext import webapp
@@ -16,11 +17,36 @@ from google.appengine.api import images
 from google.appengine.ext.webapp import template
 from google.appengine.ext.webapp.util import run_wsgi_app
 
+class ImageObject(db.Model):
+  author = db.UserProperty()
+  content = db.StringProperty(multiline=True)
+  payload = db.BlobProperty()
+  date = db.DateTimeProperty(auto_now_add=True)
+  views = db.IntegerProperty(default=1)
+  date_str = db.StringProperty(default="")
+
+def get_time_ago(reference_epoch, created_dt):
+  # pretty_dates.append(get_time_ago(time.time(), image.date))
+  seconds_ago = int(reference_epoch - time.mktime(created_dt.timetuple()))
+  ret = '%d seconds' % seconds_ago
+  if seconds_ago > 60 and seconds_ago <= 3600:
+    ret = '%d minutes' % (seconds_ago / 60)
+  elif seconds_ago > 3600 and seconds_ago <= 86400:
+    ret = '%d hours' % (seconds_ago / 3600)
+  elif seconds_ago > 86400:
+    ret = '%d days' % (seconds_ago / 86400)
+  return ret
+
 def get_images(images):
-  image_list = images
-  for image in image_list:
-    image.content = cgi.escape(image.content)
-  return image_list
+  reference_epoch = time.time()  
+  for img in images:
+    img.content = cgi.escape(img.content)
+    img.date_str = get_time_ago(reference_epoch, img.date)
+    try:
+      img.put()
+    except:
+      logging.error('get_images(): Oops, problem in the image put')
+  return images
 
 def get_header(title=None):
   if title:
@@ -82,12 +108,6 @@ def validate_content(content):
   unique_uri = ''.join(ll)
   return generate_unique_uri(unique_uri)
     
-class ImageObject(db.Model):
-  author = db.UserProperty()
-  content = db.StringProperty(multiline=True)
-  payload = db.BlobProperty()
-  date = db.DateTimeProperty(auto_now_add=True)
-
 def get_user():
   req_author = users.get_current_user()
   if req_author:
@@ -105,11 +125,9 @@ class Problem(webapp.RequestHandler):
     }
     self.response.out.write(template.render(path, template_values))
 
-
 class About(webapp.RequestHandler):
   def get(self):
     req_author = users.get_current_user()
-    
     path = os.path.join(os.path.dirname(__file__), 'templates/about.html')
     template_values = {
       'username' : get_user(),
@@ -120,6 +138,9 @@ class About(webapp.RequestHandler):
 class MainPage(webapp.RequestHandler):
   def get(self):
     image_list = get_images(db.GqlQuery("SELECT * FROM ImageObject ORDER BY date DESC LIMIT 20"))
+    reference_epoch = time.time()
+    for img in image_list:
+      logging.info('%s ---> %s', img.content, img.date_str)
     path = os.path.join(os.path.dirname(__file__), 'templates/home.html')
     template_values = {
       'image_list': image_list,
@@ -194,6 +215,8 @@ class ShowLink(webapp.RequestHandler):
     header = get_header()
     for image in image_list:
       header = get_header(link)
+      image.views +=1
+      image.put()
       break
     template_values = {
       'image_list': image_list,
@@ -223,6 +246,7 @@ class Update(webapp.RequestHandler):
       self.redirect('/problem/ERR_IMG_TOO_LARGE')
       return
     xi = ImageObject()
+    xi.views = 0
     if users.get_current_user():
       xi.author = users.get_current_user()
     content = self.request.get("content")
@@ -234,7 +258,6 @@ class Update(webapp.RequestHandler):
       payload = images.resize(raw_img, 640, 480)
       xi.payload = db.Blob(raw_img)
       xi.put()
-      
     self.redirect('/user')
 
 def main():
