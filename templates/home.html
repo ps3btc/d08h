@@ -2,7 +2,7 @@
 
 {% block content %}
 {% for image in image_list %}
-<img alt="{{ image.content }}" title="{{ image.content }}" src="/img?img_id={{ image.key }}"</img>
+<a href="/{{ image.content }}"><img border=0 alt="{{ image.content }}" title="{{ image.content }}" src="/img?img_id={{ image.key }}"</img></a>
 <p>
 	<span class="special">
 		<a href="/user/{{ image.author.email }}">{{ image.author.nickname }}</a> uploaded <b><a href="/{{ image.content }}">{{ image.content }}</a></b>
