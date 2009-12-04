@@ -24,7 +24,11 @@ def get_images(images):
 
 def get_header(title=None):
   if title:
-    return title[:50] + '...'
+    logging.info('the length of title %s %d', title, len(title))
+    if len(title) < 50:
+      return title
+    else:
+      return title[:50] + '...'
   return 'embed your tweet inside the URL of the image that you upload'
 
 def get_random_content():
@@ -142,6 +146,7 @@ class ShowUser(webapp.RequestHandler):
       return
     search_user = users.get_current_user()
     if this_user:
+      this_user = unicode(urllib.unquote(this_user), 'utf-8')
       search_user = users.User(urllib.unquote_plus(this_user))
     image_list = get_images(db.GqlQuery(
       "SELECT * FROM ImageObject WHERE author = :author ORDER BY date DESC LIMIT 30",
@@ -163,6 +168,7 @@ class ShowUser(webapp.RequestHandler):
 
 class Delete(webapp.RequestHandler):
   def get(self, delete_link):
+    delete_link = unicode(urllib.unquote(delete_link), 'utf-8')
     req_author = get_user()
     if req_author == '':
       self.redirect('/problem/ERR_NOT_SIGNED_IN')
@@ -174,6 +180,7 @@ class Delete(webapp.RequestHandler):
 
 class ShowLink(webapp.RequestHandler):
   def get(self, link):
+    link = unicode(urllib.unquote(link), 'utf-8')
     req_author = get_user()
     if req_author == '':
       req_author = 'not signed in'
