@@ -137,10 +137,7 @@ class About(webapp.RequestHandler):
 
 class MainPage(webapp.RequestHandler):
   def get(self):
-    image_list = get_images(db.GqlQuery("SELECT * FROM ImageObject ORDER BY date DESC LIMIT 20"))
-    reference_epoch = time.time()
-    for img in image_list:
-      logging.info('%s ---> %s', img.content, img.date_str)
+    image_list = get_images(db.GqlQuery("SELECT * FROM ImageObject ORDER BY date DESC LIMIT 6"))
     path = os.path.join(os.path.dirname(__file__), 'templates/home.html')
     template_values = {
       'image_list': image_list,
