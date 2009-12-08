@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+
+{% block content %}
+{% for image in image_list %}
+<p>
+	<span class="special">
+		<a href="/user/{{ image.author.email }}">{{ image.author.nickname }}</a> uploaded <b><a href="/{{ image.content }}">{{ image.content }}</a></b>
+	</span>
+  &nbsp;	
+  <a href=http://twitter.com/home?status=http://twimgr.com/{{ image.content }}><img src="/tweet_this.png" title="tweet this" alt="tweet this" style="border-style: none"/></a>
+	<span class="views">
+		<i>about {{ image.date_str }} ago</i>.
+		viewed <b>{{ image.views }}</b> times</i>&nbsp;
+	</span>
+</p>
+{% endfor %}
+{% endblock %}

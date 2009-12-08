@@ -146,7 +146,18 @@ class MainPage(webapp.RequestHandler):
       'show_trash' : False,
     }
     self.response.out.write(template.render(path, template_values))
-    
+
+class AllImages(webapp.RequestHandler):
+  def get(self):
+    image_list = get_images(db.GqlQuery("SELECT * FROM ImageObject ORDER BY views DESC"))
+    path = os.path.join(os.path.dirname(__file__), 'templates/all.html')
+    template_values = {
+      'image_list': image_list,
+      'username': get_user(),
+      'header' : get_header(),
+    }
+    self.response.out.write(template.render(path, template_values))
+  
 class UpdatePage(webapp.RequestHandler):
   def get(self):
     path = os.path.join(os.path.dirname(__file__), 'templates/update.html')
@@ -260,6 +271,7 @@ class Update(webapp.RequestHandler):
 def main():
   application = webapp.WSGIApplication([
       ('/', MainPage),
+      ('/all', AllImages),    
       ('/u', UpdatePage),
       ('/img', Image),
       ('/update', Update),
