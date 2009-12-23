@@ -62,7 +62,6 @@ def get_images(images):
 
 def get_header(title=None):
   if title:
-    logging.info('the length of title %s %d', title, len(title))
     if len(title) < 50:
       return title
     else:
