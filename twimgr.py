@@ -15,6 +15,7 @@ from google.appengine.ext import db
 from google.appengine.api import users
 from google.appengine.ext import webapp
 from google.appengine.api import images
+from google.appengine.api import memcache
 from google.appengine.ext.webapp import template
 from google.appengine.ext.webapp.util import run_wsgi_app
 
@@ -148,7 +149,13 @@ class About(webapp.RequestHandler):
 
 class MainPage(webapp.RequestHandler):
   def get(self):
-    image_list = get_images(db.GqlQuery("SELECT * FROM ImageObject ORDER BY date DESC"))
+    image_list = memcache.get("image_list")
+    if image_list is None:
+      logging.info('Missed memcache, running query ...')
+      image_list = get_images(db.GqlQuery("SELECT * FROM ImageObject ORDER BY date DESC"))
+      memcache.add("image_list", image_list, 86400)
+    else:
+      logging.info('Hit memcache, yay! ...')
     path = os.path.join(os.path.dirname(__file__), 'templates/new_home.html')
     template_values = {
       'image_list': image_list,
@@ -290,6 +297,8 @@ class Update(webapp.RequestHandler):
       xi.payload = db.Blob(raw_img)
       xi.thumbnail = create_thumbnail(xi)
       xi.put()
+    logging.info('Invalidating the memcache ...')
+    memcache.add("image_list", None, 86400)
     self.redirect('/user')
 
 def create_thumbnail(image):
