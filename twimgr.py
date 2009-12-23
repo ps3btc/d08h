@@ -10,6 +10,7 @@ import random
 import wsgiref.handlers
 import urllib
 import time
+import re
 from google.appengine.ext import db
 from google.appengine.api import users
 from google.appengine.ext import webapp
@@ -17,10 +18,20 @@ from google.appengine.api import images
 from google.appengine.ext.webapp import template
 from google.appengine.ext.webapp.util import run_wsgi_app
 
+first_cap_re = re.compile('(.)([A-Z][a-z]+)')
+all_cap_re = re.compile('([a-z0-9])([A-Z])')
+
+def strip_camel_case(content):
+  s1 = first_cap_re.sub(r'\1_\2', content)
+  txt = all_cap_re.sub(r'\1_\2', s1).lower()
+  return txt.replace('_', ' ')
+
 class ImageObject(db.Model):
   author = db.UserProperty()
   content = db.StringProperty(multiline=True)
+  full_text = db.StringProperty(multiline=True)
   payload = db.BlobProperty()
+  thumbnail = db.BlobProperty()
   date = db.DateTimeProperty(auto_now_add=True)
   views = db.IntegerProperty(default=1)
   date_str = db.StringProperty(default="")
@@ -55,7 +66,7 @@ def get_header(title=None):
       return title
     else:
       return title[:50] + '...'
-  return 'embed your tweet inside the URL of the image that you upload'
+  return '<a href="/" title="TwImgr.com" alt="TwImgr.com">twimgr.com</a>'
 
 def get_random_content():
   uri = 'i like number %s' % str(hex(int(random.uniform(1, 1000000))))
@@ -137,13 +148,12 @@ class About(webapp.RequestHandler):
 
 class MainPage(webapp.RequestHandler):
   def get(self):
-    image_list = get_images(db.GqlQuery("SELECT * FROM ImageObject ORDER BY date DESC LIMIT 6"))
-    path = os.path.join(os.path.dirname(__file__), 'templates/home.html')
+    image_list = get_images(db.GqlQuery("SELECT * FROM ImageObject ORDER BY date DESC"))
+    path = os.path.join(os.path.dirname(__file__), 'templates/new_home.html')
     template_values = {
       'image_list': image_list,
       'username': get_user(),
       'header' : get_header(),
-      'show_trash' : False,
     }
     self.response.out.write(template.render(path, template_values))
 
@@ -192,6 +202,7 @@ class ShowUser(webapp.RequestHandler):
       'username' : req_author,
       'header' : get_header(),
       'show_trash' : True,
+      'show_link' : False,
     }
     self.response.out.write(template.render(path, template_values))
 
@@ -222,7 +233,7 @@ class ShowLink(webapp.RequestHandler):
     path = os.path.join(os.path.dirname(__file__), 'templates/home.html')
     header = get_header()
     for image in image_list:
-      header = get_header(link)
+      header = get_header(image.full_text)
       image.views +=1
       image.put()
       break
@@ -230,8 +241,18 @@ class ShowLink(webapp.RequestHandler):
       'image_list': image_list,
       'username': req_author,
       'header' : header,
+      'show_link' : True,
     }
     self.response.out.write(template.render(path, template_values))
+
+class Thumbnail(webapp.RequestHandler):
+  def get(self):
+    image = db.get(self.request.get("img_id"))
+    if image.payload:
+      self.response.headers['Content-Type'] = "image/png"
+      self.response.out.write(image.thumbnail)
+    else:
+      self.response.out.write("No image")
 
 class Image(webapp.RequestHandler):
   def get(self):
@@ -259,14 +280,38 @@ class Update(webapp.RequestHandler):
       xi.author = users.get_current_user()
     content = self.request.get("content")
     xi.content = validate_content(content)
+    xi.full_text = strip_camel_case(content)
     try:
       xi.payload = db.Blob(raw_img)
+      xi.thumbnail = create_thumbnail(xi)
       xi.put()
     except:
       payload = images.resize(raw_img, 640, 480)
       xi.payload = db.Blob(raw_img)
+      xi.thumbnail = create_thumbnail(xi)
       xi.put()
     self.redirect('/user')
+
+def create_thumbnail(image):
+  img = images.Image(image.payload)
+  img.resize(width=160, height=120)
+  img.im_feeling_lucky()
+  return img.execute_transforms(output_encoding=images.PNG)
+  
+class Resize(webapp.RequestHandler):
+  def get(self):
+    image_list = get_images(db.GqlQuery("SELECT * FROM ImageObject"))
+    for image in image_list:
+      if image.thumbnail:
+        logging.info('already resized ... %s' % (image.content))
+        continue
+      thumbnail = create_thumbnail(image)
+      image.thumbnail = db.Blob(thumbnail)
+      image.full_text = strip_camel_case(image.content)
+      logging.info('resizing: %s ----> %s' % (image.content, image.full_text))
+      time.sleep(1)
+      image.put()
+    self.redirect('/')
 
 def main():
   application = webapp.WSGIApplication([
@@ -274,6 +319,7 @@ def main():
       ('/all', AllImages),    
       ('/u', UpdatePage),
       ('/img', Image),
+      ('/tiny', Thumbnail),
       ('/update', Update),
       (r'/user/(.*)', ShowUser),
       ('/user', ShowUser),

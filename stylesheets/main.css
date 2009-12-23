@@ -2,10 +2,11 @@ body {
 	font-family:arial, helvetica,  sans-serif;
 	font-size: 14.3px;
 	color: #666;
-	line-height: 2em;
+	line-height: 1.5em;
 	background-color: #fff;
 	padding: 0px;
 	margin: 0px;	
+  margin-left: 10%; margin-right: 10%;
 }
 
 ul, ol, li, h1, h2, h3, h4, h5, h6{
@@ -27,7 +28,7 @@ float:left;
 width:100%;
 color:#ccc;
 font-size:1.2em;
-letter-spacing:0.02em;
+letter-spacing:0.0em;
 border-top:1px solid #352b29;
 background-repeat:no-repeat;
 background-position:bottom;
@@ -35,15 +36,19 @@ background-position:bottom;
 .toptext h2 {
 color:#fff;
 border-bottom:none;
-font-size:2.5em;
+font-size:0.8em;
 }
+
+div#about {margin-top:0;margin-bottom:0;font-size:0.8em;}
+div#about a{display:inline;color:#151B8D;}
+
 .mainsub {
 width:100%;
 float:left;
 margin-top:5px;
 }
 .special {
-background-color:#e4e4e4;
+background-color:#1C1C1C;
 border:1px solid #ccc;
 padding:2px;
 }
@@ -70,7 +75,7 @@ font-weight:bold;
 }
 
 a:link, a:visited {
-color:#ff7b14;
+color:#7fff00;
 text-decoration:none;
 }
 a:hover {
@@ -96,7 +101,7 @@ background-position:bottom;
 }
 .footer a:link{
 text-decoration:underline;
-color:#999999;
+color:#7fff00;
 }
 
 h2 {
@@ -181,5 +186,5 @@ div#header h1{height:80px;line-height:80px;margin:0;padding-left:10px;background
 div#header a{position:absolute;right:0;top:23px}
 div#footer{background: #333;color: #FFF}
 div#footer p{margin:0;padding:5px 10px}
-div#footer a{display:inline;padding:0;color: #C6D5FD}
+div#footer a{display:inline;padding:0;color:#00ffff;}
 div#footer{clear:left;width:100%}

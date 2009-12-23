@@ -2,17 +2,22 @@
 
 {% block content %}
 {% for image in image_list %}
-<a href="/{{ image.content }}"><img border=0 alt="{{ image.content }}" title="{{ image.content }}" src="/img?img_id={{ image.key }}"</img></a>
+
+{% if show_link %}
+<a href="/{{ image.content }}"><img border=0 alt="{{ image.full_text }}" title="{{ image.full_text }}" src="/img?img_id={{ image.key }}"</img></a>
+{% else %}
+<a href="/{{ image.content }}"><img border=0 alt="{{ image.full_text }}" title="{{ image.full_text }}" src="/tiny?img_id={{ image.key }}"</img></a>
+{% endif %}
+
 <p>
 	<span class="special">
-		<a href="/user/{{ image.author.email }}">{{ image.author.nickname }}</a> uploaded <b><a href="/{{ image.content }}">{{ image.content }}</a></b>
+		<a href="/user/{{ image.author.email }}">{{ image.author.nickname }}</a> uploaded <b><a href="/{{ image.content }}">http://twimgr.com/{{ image.content }}</a></b>
 	</span>
   &nbsp;
   <a href=http://twitter.com/home?status=http://twimgr.com/{{ image.content }}><img src="/tweet_this.png" title="tweet this" alt="tweet this" style="border-style: none"/></a>
 	{%ifequal image.author.email username %}
-	{#% if show_trash %#}
+
 	<a href="/delete/{{ image.content }}"><img src="/trash.gif" alt="delete image" title="delete image" style="border-style: none"/></a>
-	{#% endif %#}
 	{% endifequal %}
 	<span class="views">
 		<i>about {{ image.date_str }} ago</i>.

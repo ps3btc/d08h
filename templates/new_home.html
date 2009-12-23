@@ -1,0 +1,6 @@
+{% extends "base.html" %}
+{% block content %}
+{% for image in image_list %}
+<a href="/{{ image.content }}"><img border=0 alt="{{ image.full_text }}" title="{{ image.full_text }}" src="/tiny?img_id={{ image.key }}"</img></a>
+{% endfor %}
+{% endblock %}

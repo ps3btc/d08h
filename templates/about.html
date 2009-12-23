@@ -1,42 +1,37 @@
 {% extends "base.html" %}
 {% block content %}
-<p>
-  people on twitter are obsessed with tiny urls since they only have 140 characters to work with.
-</p>
 
-<p>
-  when users tweet image uploads, they upload their image using one of the many
-  <a href="http://mashable.com/2009/05/19/twitter-share-images/">fine image upload services</a> and
-  get a tiny link which points to the image they just uploaded. users then
-  proceed to tweet the image link, prefacing the link with their status update.
-</p>
+<div id="about">
+people on twitter are obsessed with tiny urls since they only have 140
+characters to work with.  when users tweet image uploads, they upload
+their image using one of the many <a
+href="http://mashable.com/2009/05/19/twitter-share-images/">fine image
+upload services</a> and get a tiny link which points to the image they
+just uploaded. users then proceed to tweet the image link, prefacing
+the link with their status update. so we wondered if we could be
+<b>super terse</b> and merge the status update to sit inside the link
+that the image gets uploaded to. and so we built <a
+href="/">twimgr.com</a>.
 
-<p>
-  so we wondered if we could be <b>super terse</b> and merge the status update to sit
-  inside the link that the image gets uploaded to. and so we built <a href="/">twimgr.com</a>.
-</p>
+<center>
+<img
+src="http://www.twimgr.com/img?img_id=agRkMDhochILEgtJbWFnZU9iamVjdBihHww"
+width=800 alt="twimgr.com in a nutshell"/>
+</center>
 
-<p>
-  <img src="http://www.twimgr.com/img?img_id=agRkMDhochILEgtJbWFnZU9iamVjdBihHww" alt="twimgr.com in a nutshell"/>
-</p>
-
-<p>
-  we at <a href="/">twimgr.com</a> like to dogfood, so the unique link to the image above is at <b><a href="http://twimgr.com/TwimgrInANutshell">http://twimgr.com/TwimgrInANutshell</a></b>.
-</p>
-
-<p>
-  if pictures aren't your thing, using <a href="/">twimgr.com</a>
-  you can say <a href="http://twitter.com/ps3btc/status/6015150399">this</a> instead of
-  saying <a href="http://twitter.com/MeRRyuMMy/status/6014406834">this</a>.
-</p>
-
-<p>
-  your images and status updates are yours. your data is hosted on google appengine. and we love <a href="http://en.wikipedia.org/wiki/CamelCase">CamelCase</a>.
-</p>
-
-<p>
-  and finally, if you are lazy and don't like providing a status message, then we will autogenerate one for you,
-  just like we do here <b><a href="http://twimgr.com/ILikeNumber0x30de9">http://twimgr.com/ILikeNumber0x30de9</a></b>.
-</p>
+at <a href="/">twimgr.com</a> we like to dogfood, so the unique link
+to the image above is at <a
+href="http://twimgr.com/TwimgrInANutshell">http://twimgr.com/TwimgrInANutshell</a>.
+if pictures aren't your thing, using <a href="/">twimgr.com</a> you
+can say <a href="http://twitter.com/ps3btc/status/6015150399">this</a>
+instead of saying <a
+href="http://twitter.com/MeRRyuMMy/status/6014406834">this</a>.  your
+images and status updates are yours. your data is hosted on google
+appengine. and we love <a
+href="http://en.wikipedia.org/wiki/CamelCase">CamelCase</a>.  and
+finally, if you are lazy and don't like providing a status message,
+then we will autogenerate one for you, just like we do here <a
+href="http://twimgr.com/ILikeNumber0x30de9">http://twimgr.com/ILikeNumber0x30de9</a>.
+</div>
 
 {% endblock %}
