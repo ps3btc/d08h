@@ -19,9 +19,6 @@ from google.appengine.api import memcache
 from google.appengine.ext.webapp import template
 from google.appengine.ext.webapp.util import run_wsgi_app
 
-first_cap_re = re.compile('(.)([A-Z][a-z]+)')
-all_cap_re = re.compile('([a-z0-9])([A-Z])')
-
 def strip_camel_case(content):
   s1 = first_cap_re.sub(r'\1_\2', content)
   txt = all_cap_re.sub(r'\1_\2', s1).lower()
@@ -148,32 +145,44 @@ class About(webapp.RequestHandler):
 
 class MainPage(webapp.RequestHandler):
   def get(self):
-    image_list = memcache.get("image_list")
-    if image_list is None:
-      logging.info('Missed memcache, running query ...')
-      image_list = get_images(db.GqlQuery("SELECT * FROM ImageObject ORDER BY date DESC"))
-      memcache.add("image_list", image_list, 86400)
-    else:
-      logging.info('Hit memcache, yay! ...')
-    path = os.path.join(os.path.dirname(__file__), 'templates/new_home.html')
+    username = get_user()
+    if len(username) == 0:
+      contents = memcache.get("the_contents")
+      if contents:
+        logging.info("memcache hit: found contents!")
+        return self.response.out.write(contents)
+    image_list = get_images(db.GqlQuery("SELECT * FROM ImageObject ORDER BY date DESC LIMIT 4"))
     template_values = {
       'image_list': image_list,
       'username': get_user(),
       'header' : get_header(),
+      'show_all_link' : True,
     }
-    self.response.out.write(template.render(path, template_values))
+    path = os.path.join(os.path.dirname(__file__), 'templates/new_home.html')
+    contents = template.render(path, template_values)
+    memcache.add("the_contents", contents, 864000)
+    self.response.out.write(contents)
 
 class AllImages(webapp.RequestHandler):
   def get(self):
-    image_list = get_images(db.GqlQuery("SELECT * FROM ImageObject ORDER BY views DESC"))
-    path = os.path.join(os.path.dirname(__file__), 'templates/all.html')
+    username = get_user()
+    if len(username) == 0:
+      contents = memcache.get("the_contents_all")
+      if contents:
+        logging.info("memcache hit: found contents all!")
+        return self.response.out.write(contents)
+    image_list = get_images(db.GqlQuery("SELECT * FROM ImageObject ORDER BY date DESC"))
     template_values = {
       'image_list': image_list,
       'username': get_user(),
       'header' : get_header(),
+      'show_all_link' : False,
     }
-    self.response.out.write(template.render(path, template_values))
-  
+    path = os.path.join(os.path.dirname(__file__), 'templates/new_home.html')
+    contents = template.render(path, template_values)
+    memcache.add("the_contents_all", contents, 864000)
+    self.response.out.write(contents)
+ 
 class UpdatePage(webapp.RequestHandler):
   def get(self):
     path = os.path.join(os.path.dirname(__file__), 'templates/update.html')
@@ -297,7 +306,8 @@ class Update(webapp.RequestHandler):
       xi.thumbnail = create_thumbnail(xi)
       xi.put()
     logging.info('Invalidating the memcache ...')
-    memcache.add("image_list", None, 86400)
+    memcache.add("the_contents_all", 86400)
+    memcache.add("the_contents", 86400)
     self.redirect('/user')
 
 def create_thumbnail(image):
