@@ -181,7 +181,7 @@ class AllImages(webapp.RequestHandler):
     else:
       logging.info("memcache miss: did not find contents for %s", content_key)
     
-    image_list = get_images(db.GqlQuery("SELECT * FROM ImageObject ORDER BY date DESC LIMIT 4"))
+    image_list = get_images(db.GqlQuery("SELECT * FROM ImageObject ORDER BY date DESC"))
     template_values = {
       'image_list': image_list,
       'username': get_user(),
