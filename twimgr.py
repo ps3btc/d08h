@@ -166,7 +166,7 @@ class MainPage(webapp.RequestHandler):
     }
     path = os.path.join(os.path.dirname(__file__), 'templates/new_home.html')
     contents = template.render(path, template_values)
-    memcache.add(content_key, contents, 864000)
+    memcache.add(content_key, contents, 2419200)
     self.response.out.write(contents)
 
 class AllImages(webapp.RequestHandler):
@@ -190,7 +190,7 @@ class AllImages(webapp.RequestHandler):
     }
     path = os.path.join(os.path.dirname(__file__), 'templates/new_home.html')
     contents = template.render(path, template_values)
-    memcache.add(content_key, contents, 864000)
+    memcache.add(content_key, contents, 2419200)
     self.response.out.write(contents)
 
  
