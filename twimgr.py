@@ -151,7 +151,8 @@ class MainPage(webapp.RequestHandler):
     content_key = "%s_the_contents" % username
     contents = memcache.get(content_key)
 
-    if contents:
+    flag = False
+    if contents and flag:
       logging.info("memcache hit: found contents for %s", content_key)
       return self.response.out.write(contents)
     else:
